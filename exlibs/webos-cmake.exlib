@@ -1,4 +1,4 @@
-require cmake [ api=2 ]
+require webos-env cmake [ api=2 ]
 
 DEPENDENCIES="
     build:

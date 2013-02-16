@@ -3,19 +3,21 @@
 
 export_exlib_phases src_install
 
+require webos-env
+
 DEPENDENCIES="
     build:
         webOS/cmake-modules-webos
 "
 
-webos_sysbus_pubservicesdir="/usr/share/dbus-1/services"
-webos_sysbus_prvservicesdir="/usr/share/dbus-1/system-services"
-webos_sysbus_pubrolesdir="/usr/share/ls2/roles/pub"
-webos_sysbus_prvrolesdir="/usr/share/ls2/roles/prv"
-webos_sysbus_dynpubservicesdir="/var/palm/ls2/services/pub"
-webos_sysbus_dynprvservicesdir="/var/palm/ls2/services/prv"
-webos_sysbus_dynpubrolesdir="/var/palm/ls2/roles/pub"
-webos_sysbus_dynprvrolesdir="/var/palm/ls2/roles/prv"
+export webos_sysbus_pubservicesdir="/usr/share/dbus-1/services"
+export webos_sysbus_prvservicesdir="/usr/share/dbus-1/system-services"
+export webos_sysbus_pubrolesdir="/usr/share/ls2/roles/pub"
+export webos_sysbus_prvrolesdir="/usr/share/ls2/roles/prv"
+export webos_sysbus_dynpubservicesdir="${localstatedir}/ls2/services/pub"
+export webos_sysbus_dynprvservicesdir="${localstatedir}/ls2/services/prv"
+export webos_sysbus_dynpubrolesdir="${localstatedir}/ls2/roles/pub"
+export webos_sysbus_dynprvrolesdir="${localstatedir}/ls2/roles/prv"
 
 webos_system_bus_install_files () {
     local _LS_PRV_DIR="${IMAGE}$1"    # destination directory for private hub files
