@@ -1,0 +1,19 @@
+# Copyright 2013 Nikolay Orliuk
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user=openwebos ] webos-cmake
+
+SUMMARY="Palm's Better Native JSON library"
+
+LICENCES="Apache-2.0"
+SLOT="0"
+PLATFORMS="~x86 ~amd64"
+
+DEPENDENCIES="
+    build+run:
+        dev-libs/yajl
+"
+
+DEFAULT_SRC_PREPARE_PATCHES=(
+    "${FILES}/0001-add-support-for-yajl-2.0.patch"
+)

@@ -1,0 +1,289 @@
+Upstream: submitted
+
+From 6ff407297ed231e164f4b66689be3ee95b7a9ab5 Mon Sep 17 00:00:00 2001
+From: Nikolay Orlyuk <virkony@gmail.com>
+Date: Sat, 16 Feb 2013 22:40:47 +0200
+Subject: [PATCH] add support for yajl 2.0+
+
+- detect pre yajl_version.h
+- support for both yajl version
+- use size_t in jtypes.h
+
+---
+ include/public/pbnjson/c/jtypes.h |  4 ++--
+ src/CMakeModules/FindYAJL.cmake   | 10 +++++++-
+ src/pbnjson_c/CMakeLists.txt      |  7 +++---
+ src/pbnjson_c/jgen_stream.c       | 17 ++++++++++++-
+ src/pbnjson_c/jparse_stream.c     | 50 +++++++++++++++++++++++++++++----------
+ 5 files changed, 69 insertions(+), 19 deletions(-)
+
+diff --git a/include/public/pbnjson/c/jtypes.h b/include/public/pbnjson/c/jtypes.h
+index 002c1d1..71a6466 100644
+--- a/include/public/pbnjson/c/jtypes.h
++++ b/include/public/pbnjson/c/jtypes.h
+@@ -1,6 +1,6 @@
+ // @@@LICENSE
+ //
+-//      Copyright (c) 2009-2012 Hewlett-Packard Development Company, L.P.
++//      Copyright (c) 2009-2013 Hewlett-Packard Development Company, L.P.
+ //
+ // Licensed under the Apache License, Version 2.0 (the "License");
+ // you may not use this file except in compliance with the License.
+@@ -49,7 +49,7 @@ typedef enum {
+  */
+ typedef struct {
+ 	const char *m_str;
+-	long m_len;	/// this MUST be the number of characters in m_str not including any terminating nulls.
++	size_t m_len;	/// this MUST be the number of characters in m_str not including any terminating nulls.
+ } raw_buffer;
+ 
+ /**
+diff --git a/src/CMakeModules/FindYAJL.cmake b/src/CMakeModules/FindYAJL.cmake
+index 00281fe..7bfa732 100644
+--- a/src/CMakeModules/FindYAJL.cmake
++++ b/src/CMakeModules/FindYAJL.cmake
+@@ -1,6 +1,6 @@
+ # @@@LICENSE
+ #
+-#      Copyright (c) 2012 Hewlett-Packard Development Company, L.P.
++#      Copyright (c) 2012-2013 Hewlett-Packard Development Company, L.P.
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -20,6 +20,7 @@
+ # YAJL_FOUND - system has yajl
+ # YAJL_INCLUDE_DIRS - include directories necessary to compile w/ yajl
+ # YAJL_LIBRARIES - libraries necessary to link to to get yajl
++# YAJL_DEFINITIONS - compiler switches required for using yajl
+ #
+ # If YAJL_STATIC is set, find the static library; otherwise, find the shared library.
+ #
+@@ -29,6 +30,13 @@ include(FindPackageHandleStandardArgs)
+ # Find the include directories
+ find_path(YAJL_INCLUDE_DIRS NAMES yajl/yajl_parse.h yajl/yajl_gen.h yajl/yajl_common.h)
+ 
++# Check if we have 2.0+ version or lower
++if(EXISTS "${YAJL_INCLUDE_DIRS}/yajl/yajl_version.h")
++    set(YAJL_DEFINITIONS "-DHAVE_YAJL_VERSION_H")
++else()
++    MESSAGE(STATUS "Detected old version of yajl (below 2.0). Consider upgrade.")
++endif()
++
+ # Find the library
+ if(YAJL_STATIC)
+ 	find_library(YAJL_LIBRARIES NAMES yajl_s)
+diff --git a/src/pbnjson_c/CMakeLists.txt b/src/pbnjson_c/CMakeLists.txt
+index 0653ed4..c4fd2a4 100644
+--- a/src/pbnjson_c/CMakeLists.txt
++++ b/src/pbnjson_c/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ # @@@LICENSE
+ #
+-#      Copyright (c) 2009-2012 Hewlett-Packard Development Company, L.P.
++#      Copyright (c) 2009-2013 Hewlett-Packard Development Company, L.P.
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -62,7 +62,8 @@ set(${C_ENGINE_PKG}_STATIC ${STATIC_C_ENGINE})
+ find_package(${C_ENGINE_PKG} REQUIRED)
+ set(C_ENGINE_INCDIR ${${C_ENGINE_PKG}_INCLUDE_DIRS})
+ set(C_ENGINE_LIBNAME ${${C_ENGINE_PKG}_LIBRARIES})
+-message(STATUS "pbnjson_c: ${C_ENGINE} include directory ${C_ENGINE_INCDIR}, library ${C_ENGINE_LIBNAME}")
++set(C_ENGINE_DEFINITIONS ${${C_ENGINE_PKG}_DEFINITIONS})
++message(STATUS "pbnjson_c: ${C_ENGINE} include directory ${C_ENGINE_INCDIR}, library ${C_ENGINE_LIBNAME}, definitions ${C_ENGINE_DEFINITIONS}")
+ 
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/sys_malloc.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/sys_malloc.h)
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pjson_syslog.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/pjson_syslog.h)
+@@ -71,7 +72,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/strnlen.h.cmake ${CMAKE_CURRENT_BINAR
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/isatty.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/isatty.h)
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/assert_compat.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/assert_compat.h)
+ 
+-webos_add_compiler_flags(ALL -std=c99)
++webos_add_compiler_flags(ALL -std=c99 ${C_ENGINE_DEFINITIONS})
+ 
+ file(GLOB SHARED_SOURCE "./*.c" "./jvalue/*.c")
+ 
+diff --git a/src/pbnjson_c/jgen_stream.c b/src/pbnjson_c/jgen_stream.c
+index 1cef086..94bfaf9 100644
+--- a/src/pbnjson_c/jgen_stream.c
++++ b/src/pbnjson_c/jgen_stream.c
+@@ -1,6 +1,6 @@
+ // @@@LICENSE
+ //
+-//      Copyright (c) 2009-2012 Hewlett-Packard Development Company, L.P.
++//      Copyright (c) 2009-2013 Hewlett-Packard Development Company, L.P.
+ //
+ // Licensed under the Apache License, Version 2.0 (the "License");
+ // you may not use this file except in compliance with the License.
+@@ -19,6 +19,13 @@
+ #include "gen_stream.h"
+ 
+ #include <yajl/yajl_gen.h>
++#ifdef HAVE_YAJL_VERSION_H
++#include <yajl/yajl_version.h>
++#else
++/* dummy version lower than 20000 */
++#define YAJL_VERSION 10000
++#endif
++
+ #include <stdio.h>
+ #include <string.h>
+ #include <sys_malloc.h>
+@@ -199,7 +206,11 @@ static StreamStatus convert_error_code(yajl_gen_status raw_code)
+ static char* finish_stream(ActualStream* __stream, StreamStatus *error_code)
+ {
+ 	char *buf = NULL;
++#if YAJL_VERSION < 20000
+ 	unsigned int len;
++#else
++	size_t len;
++#endif
+ 	yajl_gen_status result;
+ 
+ 	SANITY_CHECK_POINTER(__stream);
+@@ -289,7 +300,11 @@ JStreamRef jstreamInternal(jschema_ref schema, TopLevelType type)
+ 	};
+ 	stream->handle = yajl_gen_alloc(NULL, &allocators);
+ #else
++#if YAJL_VERSION < 20000
+ 	stream->handle = yajl_gen_alloc(NULL, NULL);
++#else
++	stream->handle = yajl_gen_alloc(NULL);
++#endif
+ #endif
+ 	stream->opened = type;
+ 
+diff --git a/src/pbnjson_c/jparse_stream.c b/src/pbnjson_c/jparse_stream.c
+index 0405eb2..c7c0e70 100644
+--- a/src/pbnjson_c/jparse_stream.c
++++ b/src/pbnjson_c/jparse_stream.c
+@@ -1,6 +1,6 @@
+ // @@@LICENSE
+ //
+-//      Copyright (c) 2009-2012 Hewlett-Packard Development Company, L.P.
++//      Copyright (c) 2009-2013 Hewlett-Packard Development Company, L.P.
+ //
+ // Licensed under the Apache License, Version 2.0 (the "License");
+ // you may not use this file except in compliance with the License.
+@@ -18,7 +18,15 @@
+ 
+ #include <jparse_stream.h>
+ #include <jobject.h>
++
+ #include <yajl/yajl_parse.h>
++#ifdef HAVE_YAJL_VERSION_H
++#include <yajl/yajl_version.h>
++#else
++/* dummy version lower than 20000 */
++#define YAJL_VERSION 10000
++#endif
++
+ #include "liblog.h"
+ #include "jparse_stream_internal.h"
+ #include "jobject_internal.h"
+@@ -32,6 +40,13 @@
+ #include <sys/mman.h>
+ #include <fcntl.h>
+ 
++#if YAJL_VERSION < 20000
++typedef unsigned int yajl_size_t;
++#else
++typedef size_t yajl_size_t;
++#endif
++
++
+ typedef struct DomInfo {
+ 	JDOMOptimization m_optInformation;
+ 	/**
+@@ -499,10 +514,10 @@ typedef int(* 	pj_yajl_null )(void *ctx);
+ typedef int(* 	pj_yajl_boolean )(void *ctx, int boolVal);
+ typedef int(* 	pj_yajl_integer )(void *ctx, long integerVal);
+ typedef int(* 	pj_yajl_double )(void *ctx, double doubleVal);
+-typedef int(* 	pj_yajl_number )(void *ctx, const char *numberVal, unsigned int numberLen);
+-typedef int(* 	pj_yajl_string )(void *ctx, const unsigned char *stringVal, unsigned int stringLen);
++typedef int(* 	pj_yajl_number )(void *ctx, const char *numberVal, yajl_size_t numberLen);
++typedef int(* 	pj_yajl_string )(void *ctx, const unsigned char *stringVal, yajl_size_t stringLen);
+ typedef int(* 	pj_yajl_start_map )(void *ctx);
+-typedef int(* 	pj_yajl_map_key )(void *ctx, const unsigned char *key, unsigned int stringLen);
++typedef int(* 	pj_yajl_map_key )(void *ctx, const unsigned char *key, yajl_size_t stringLen);
+ typedef int(* 	pj_yajl_end_map )(void *ctx);
+ typedef int(* 	pj_yajl_start_array )(void *ctx);
+ typedef int(* 	pj_yajl_end_array )(void *ctx);
+@@ -544,7 +559,7 @@ static int my_bounce_start_map(void *ctxt)
+ 	DEREF_CALLBACK(spring->m_handlers->yajl_start_map, ctxt);
+ }
+ 
+-static int my_bounce_map_key(void *ctxt, const unsigned char *str, unsigned int strLen)
++static int my_bounce_map_key(void *ctxt, const unsigned char *str, yajl_size_t strLen)
+ {
+ 	bounce_breakpoint();
+ 	PJ_LOG_TRACE("%.*s", strLen, str);
+@@ -624,7 +639,7 @@ static int my_bounce_end_array(void *ctxt)
+ 	DEREF_CALLBACK(spring->m_handlers->yajl_end_array, ctxt);
+ }
+ 
+-static int my_bounce_string(void *ctxt, const unsigned char *str, unsigned int strLen)
++static int my_bounce_string(void *ctxt, const unsigned char *str, yajl_size_t strLen)
+ {
+ 	bounce_breakpoint();
+ 	PJ_LOG_TRACE("%.*s", strLen, str);
+@@ -644,7 +659,7 @@ static int my_bounce_string(void *ctxt, const unsigned char *str, unsigned int s
+ 	DEREF_CALLBACK(spring->m_handlers->yajl_string, ctxt, str, strLen);
+ }
+ 
+-static int my_bounce_number(void *ctxt, const char *numberVal, unsigned int numberLen)
++static int my_bounce_number(void *ctxt, const char *numberVal, yajl_size_t numberLen)
+ {
+ 	bounce_breakpoint(numberVal);
+ 	PJ_LOG_TRACE("%.*s", numberLen, numberVal);
+@@ -763,11 +778,6 @@ static bool jsax_parse_internal(PJSAXCallbacks *parser, raw_buffer input, JSchem
+ 		(pj_yajl_end_array)parser->m_arrEnd, // yajl_end_array
+ 	};
+ 
+-	yajl_parser_config yajl_opts = {
+-		comments, // comments are not allowed
+-		0, // currently only UTF-8 will be supported for input.
+-	};
+-
+ 	PJSAXContext internalCtxt = {
+ 		.ctxt = (ctxt != NULL ? *ctxt : NULL),
+ 		.m_handlers = &yajl_cb,
+@@ -782,7 +792,21 @@ static bool jsax_parse_internal(PJSAXCallbacks *parser, raw_buffer input, JSchem
+ 	}
+ #endif
+ 
++#if YAJL_VERSION < 20000
++        yajl_parser_config yajl_opts = {
++                comments,
++                0, // currently only UTF-8 will be supported for input.
++        };
++
+ 	yajl_handle handle = yajl_alloc(&my_bounce, &yajl_opts, NULL, &internalCtxt);
++#else
++        yajl_handle handle = yajl_alloc(&my_bounce, NULL, &internalCtxt);
++
++        yajl_config(handle, yajl_allow_comments, comments ? 1 : 0);
++
++        // currently only UTF-8 will be supported for input.
++        yajl_config(handle, yajl_dont_validate_strings, 0);
++#endif
+ 
+ 	parseResult = yajl_parse(handle, (unsigned char *)input.m_str, input.m_len);
+ 	if (ctxt != NULL) *ctxt = jsax_getContext(&internalCtxt);
+@@ -795,11 +819,13 @@ static bool jsax_parse_internal(PJSAXCallbacks *parser, raw_buffer input, JSchem
+ 				goto parse_failure;
+ 			PJ_LOG_WARN("Client claims they handled an unknown error in '%.*s'", (int)input.m_len, input.m_str);
+ 			break;
++#if YAJL_VERSION < 20000
+ 		case yajl_status_insufficient_data:
+ 			if (ERR_HANDLER_FAILED(schemaInfo->m_errHandler, m_parser, &internalCtxt))
+ 				goto parse_failure;
+ 			PJ_LOG_WARN("Client claims they handled incomplete JSON input provided '%.*s'", (int)input.m_len, input.m_str);
+ 			break;
++#endif
+ 		case yajl_status_error:
+ 		default:
+ 			if (ERR_HANDLER_FAILED(schemaInfo->m_errHandler, m_unknown, &internalCtxt))
+-- 
+1.8.1.2
+
