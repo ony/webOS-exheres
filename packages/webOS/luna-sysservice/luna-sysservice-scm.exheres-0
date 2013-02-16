@@ -1,0 +1,28 @@
+# Copyright 2013 Nikolay Orliuk
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user=openwebos ] webos-cmake webos-system-bus webos-daemon
+
+SUMMARY="Provides image manipulation, preference, timezone and ringtone services for Open webOS components"
+
+LICENCES="Apache-2.0"
+SLOT="0"
+PLATFORMS="~x86 ~amd64"
+MYOPTIONS=""
+
+DEPENDENCIES="
+    build+run:
+        dev-libs/uriparser[>=0.7.7]
+        x11-libs/qt
+        webOS/libpbnjson
+"
+
+DEFAULT_SRC_PREPARE_PATCHES=(
+    "${FILES}/0001-Correct-includes-of-lunaservice.h.patch"
+    "${FILES}/luna-sysservice-extra-definitions-and-headless.patch"
+)
+
+CMAKE_SRC_CONFIGURE_PARAMS+=(
+    '-DEXTRA_DEFINITIONS:STRING=-DDESKTOP'
+)
+

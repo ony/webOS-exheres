@@ -1,0 +1,9 @@
+[Unit]
+Description=Open webOS sys services
+Requires=ls-hubd_private.service ls-hubd_private.service
+
+[Service]
+ExecStart=/usr/sbin/LunaSysService
+
+[Install]
+#WantedBy=multi-user.target
