@@ -1,0 +1,9 @@
+[Unit]
+Description=Open webOS database
+Requires=ls-hubd_private.service ls-hubd_private.service LunaSysService.service
+
+[Service]
+ExecStart=/usr/sbin/LunaSysService
+
+[Install]
+#WantedBy=multi-user.target

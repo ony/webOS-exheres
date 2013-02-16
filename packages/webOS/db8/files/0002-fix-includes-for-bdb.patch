@@ -1,0 +1,56 @@
+Upstream: submitted
+
+From 8d553221036b41543b67b2dafa3e415485721d22 Mon Sep 17 00:00:00 2001
+From: Nikolay Orlyuk <virkony@gmail.com>
+Date: Sat, 16 Feb 2013 17:31:55 +0200
+Subject: [PATCH 2/2] fix includes for bdb
+
+Originally includes was searched in sys includes and
+/usr/local/BerkeleyDB.4.8/include. On systems with multiple slots and
+with default set to something different than db:4.8 this cause using of
+wrong includes.
+To avoid that use the same find technique as for libraries.
+
+---
+ CMakeLists.txt | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 638d1f2..792fbe7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ # @@@LICENSE
+ #
+-# Copyright (c) 2012 Hewlett-Packard Development Company, L.P.
++# Copyright (c) 2012-2013 Hewlett-Packard Development Company, L.P.
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -60,6 +60,14 @@ if(BDB STREQUAL "BDB-NOTFOUND")
+ endif()
+ MESSAGE(STATUS "BDB LIB ${BDB}")
+ 
++find_path(BDB_INC db.h
++          PATHS /usr/local/BerkeleyDB.4.8/include
++          PATH_SUFFIXES db4.8)
++if(BDB_INC STREQUAL "BDB_INC-NOTFOUND")
++    MESSAGE(FATAL_ERROR "Failed to find BerkleyDB includes. Please install.")
++endif()
++MESSAGE(STATUS "BDB INC ${BDB_INC}")
++
+ # provide both db8 and mojodb pkgconfigs
+ webos_build_pkgconfig(files/pkgconfig/mojodb)
+ webos_build_pkgconfig(files/pkgconfig/db8)
+@@ -198,7 +206,7 @@ set(BDB_SOURCES
+     )
+ 
+ webos_add_compiler_flags(ALL -DMOJ_USE_BDB)
+-include_directories(/usr/local/BerkeleyDB.4.8/include)
++include_directories(${BDB_INC})
+ add_executable(mojodb-luna ${LUNA_BIN_SOURCES} ${BDB_SOURCES})
+ target_link_libraries(mojodb-luna
+                       ${GLIB2_LDFLAGS}
+-- 
+1.8.1.2
+
