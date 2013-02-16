@@ -45,6 +45,7 @@ webos_system_bus_install_files () {
 }
 
 webos-system-bus_src_install() {
+    default
     webos_system_bus_install_files ${webos_sysbus_prvservicesdir} ${webos_sysbus_pubservicesdir} "*.service.prv" "*.service.pub"
     webos_system_bus_install_files ${webos_sysbus_prvrolesdir}    ${webos_sysbus_pubrolesdir}    "*.json.prv"    "*.json.pub"
 }
