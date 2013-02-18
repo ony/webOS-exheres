@@ -1,0 +1,18 @@
+# Copyright 2013 Nikolay Orliuk
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user=openwebos ] autotools [ supported_autoconf=[ 2.5 ] supported_automake=[ 1.13 ] ]
+
+SUMMARY="Open webOS edition of the open-source json-c library"
+
+LICENCES="MIT"
+SLOT="0"
+PLATFORMS="~x86 ~amd64"
+
+DEFAULT_SRC_CONFIGURE_PARAMS=( --disable-static )
+
+src_prepare() {
+    default
+    edo mkdir m4
+    autotools_src_prepare
+}
