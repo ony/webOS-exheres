@@ -1,0 +1,9 @@
+require cmake
+
+DEPENDENCIES="
+    build:
+        webOS/cmake-modules-webos
+"
+
+CMAKE_SRC_CONFIGURE_PARAMS=( "-DWEBOS_INSTALL_ROOT:PATH=/" )
+
