@@ -1,0 +1,52 @@
+# (c) Copyright 2012-2013  Hewlett-Packard Development Company, L.P.
+#
+
+export_exlib_phases src_install
+
+DEPENDENCIES="
+    build:
+        webOS/cmake-modules-webos
+"
+
+webos_sysbus_pubservicesdir="/usr/share/dbus-1/services"
+webos_sysbus_prvservicesdir="/usr/share/dbus-1/system-services"
+webos_sysbus_pubrolesdir="/usr/share/ls2/roles/pub"
+webos_sysbus_prvrolesdir="/usr/share/ls2/roles/prv"
+webos_sysbus_dynpubservicesdir="/var/palm/ls2/services/pub"
+webos_sysbus_dynprvservicesdir="/var/palm/ls2/services/prv"
+webos_sysbus_dynpubrolesdir="/var/palm/ls2/roles/pub"
+webos_sysbus_dynprvrolesdir="/var/palm/ls2/roles/prv"
+
+webos_system_bus_install_files () {
+    local _LS_PRV_DIR="${IMAGE}$1"    # destination directory for private hub files
+    local _LS_PUB_DIR="${IMAGE}$2"    # destination directory for public hub files
+    local _LS_PRV_FILE="$3"       # match string for private hub files
+    local _LS_PUB_FILE="$4"       # match string for public hub files
+    local i
+
+    install -d $_LS_PRV_DIR
+    install -d $_LS_PUB_DIR
+
+    # Can't assume our current directory is still ${WORK}
+    _LS_PUB=`find ${WORK}/service -name "$_LS_PUB_FILE"`
+    _LS_PRV=`find ${WORK}/service -name "$_LS_PRV_FILE"`
+
+    for i in $_LS_PUB; do
+        _LS_PUB_DEST=`basename $i .pub`
+        bbnote "PUBLIC: $_LS_PUB_DIR/$_LS_PUB_DEST"
+        install -v -m 0644 $i $_LS_PUB_DIR/$_LS_PUB_DEST
+    done
+
+    for i in $_LS_PRV; do
+        _LS_PRV_DEST=`basename $i .prv`
+        bbnote "PRIVATE: $_LS_PRV_DIR/$_LS_PRV_DEST"
+        install -v -m 0644 $i $_LS_PRV_DIR/$_LS_PRV_DEST
+    done
+}
+
+webos-system-bus_src_install() {
+    webos_system_bus_install_files ${webos_sysbus_prvservicesdir} ${webos_sysbus_pubservicesdir} "*.service.prv" "*.service.pub"
+    webos_system_bus_install_files ${webos_sysbus_prvrolesdir}    ${webos_sysbus_pubrolesdir}    "*.json.prv"    "*.json.pub"
+}
+
+
