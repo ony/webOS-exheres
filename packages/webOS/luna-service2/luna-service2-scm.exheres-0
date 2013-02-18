@@ -1,0 +1,31 @@
+# Copyright 2013 Nikolay Orliuk
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user=openwebos ] webos-cmake systemd-service
+
+SUMMARY="Open webOS Luna System Bus library, daemon, and utilities"
+
+LICENCES="Apache-2.0"
+SLOT="0"
+PLATFORMS="~x86 ~amd64"
+MYOPTIONS=""
+
+DEPENDENCIES="
+    build+run:
+        dev-libs/glib:2
+        webOS/cjson
+        webOS/pmloglib
+"
+
+src_install() {
+    default
+
+    cmake_src_install
+
+    install_systemd_files
+
+    keepdir /usr/share/dbus-1/{system-,}services
+    keepdir /var/palm/ls2/{roles,services}/{prv,pub}
+}
+
+
