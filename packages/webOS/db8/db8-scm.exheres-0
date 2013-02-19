@@ -24,7 +24,6 @@ DEPENDENCIES="
 "
 
 DEFAULT_SRC_PREPARE_PATCHES=(
-    "${FILES}/0001-Correct-includes-of-lunaservice.h.patch"
     "${FILES}/0002-fix-includes-for-bdb.patch"
 )
 
