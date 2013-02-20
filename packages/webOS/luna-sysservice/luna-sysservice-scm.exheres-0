@@ -18,7 +18,6 @@ DEPENDENCIES="
 "
 
 DEFAULT_SRC_PREPARE_PATCHES=(
-    "${FILES}/0001-Correct-includes-of-lunaservice.h.patch"
     "${FILES}/luna-sysservice-extra-definitions-and-headless.patch"
 )
 
