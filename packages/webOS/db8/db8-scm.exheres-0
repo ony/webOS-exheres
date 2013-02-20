@@ -23,7 +23,3 @@ DEPENDENCIES="
         webOS/luna-sysservice
 "
 
-DEFAULT_SRC_PREPARE_PATCHES=(
-    "${FILES}/0002-fix-includes-for-bdb.patch"
-)
-
