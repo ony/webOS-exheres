@@ -1,0 +1,30 @@
+From 28b21acb5cb76d05630952826ce1fb3df4f2714d Mon Sep 17 00:00:00 2001
+From: Nikolay Orlyuk <norluk@luxoft.com>
+Date: Tue, 26 Feb 2013 11:11:14 +0200
+Subject: [PATCH] Fix Doxygen file location
+
+Looks like webos_config_build_doxygen is pretty strict about file
+location and format. Currently it expect it to be in
+${doc_dir}/${doxyfile}.in . So either first argument should be "." or
+file should be in doc folder. Without that next error produced:
+
+-- Configuring incomplete, errors occurred!
+CMake Error: File /var/tmp/paludis/build/webOS-luna-webkit-api-scm/work/luna-webkit-api-scm/doc/Doxyfile.in does not exist.
+CMake Error at /usr/share/cmake/Modules/webOS/webOS.cmake:776 (configure_file):
+  configure_file Problem configuring file
+Call Stack (most recent call first):
+  /usr/share/cmake/Modules/webOS/webOS.cmake:850 (_webos_add_doc_target)
+  CMakeLists.txt:27 (webos_config_build_doxygen)
+
+---
+ Doxyfile => doc/Doxyfile.in | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ rename Doxyfile => doc/Doxyfile.in (100%)
+
+diff --git a/Doxyfile b/doc/Doxyfile.in
+similarity index 100%
+rename from Doxyfile
+rename to doc/Doxyfile.in
+-- 
+1.8.1.3
+
