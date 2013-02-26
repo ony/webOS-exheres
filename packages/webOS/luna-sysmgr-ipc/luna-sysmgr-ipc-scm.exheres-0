@@ -1,0 +1,16 @@
+# Copyright 2013 Nikolay Orliuk
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user=openwebos ] webos-cmake
+
+SUMMARY="Open webOS IPC library used by luna-sysmgr"
+
+LICENCES="Apache-2.0"
+SLOT="0"
+PLATFORMS="~x86 ~amd64"
+
+DEPENDENCIES="
+    build+run:
+        dev-libs/glib:2
+"
+
