@@ -1,16 +1,57 @@
-# Copyright 2013 Nikolay Orliuk
+# Copyright 2013-2014 Nikolay Orliuk
 # Distributed under the terms of the GNU General Public License v2
 
-require github [ user=openwebos ] webos-cmake
+require github [ user=openwebos ] webos-cmake webos-gtest
 
 SUMMARY="Palm's Better Native JSON library"
+
+LEMON_VER="3.5.4"
+LEMON_REV="866466895b3b44878a83fdd87ec0769687cc1129"
+LEMON_URI="http://repo.or.cz/w/sqlite.git/blob_plain/${LEMON_REV}:/tool"
+
+DOWNLOADS+="
+    ${LEMON_URI}/lemon.c -> lemon-v${LEMON_VER}.c
+    ${LEMON_URI}/lempar.c -> lempar-v${LEMON_VER}.c
+"
 
 LICENCES="Apache-2.0"
 SLOT="0"
 PLATFORMS="~x86 ~amd64"
 
-DEPENDENCIES="
+DEPENDENCIES+="
     build+run:
+        dev-libs/gmp
         dev-libs/yajl
+        dev-libs/uriparser
+    test:
+        dev-cpp/gtest
+        webOS/cjson
 "
 
+CMAKE_SRC_CONFIGURE_PARAMS+=(
+    "-DNO_LOGGING:BOOL=TRUE"
+    "-DLEMON:PATH=${WORK}/lemon"
+)
+
+# FIXME: Make sure that C.TestDOM will pass even without -DNDEBUG
+CXXFLAGS="${CXXFLAGS} -DNDEBUG"
+
+CMAKE_SRC_CONFIGURE_TESTS+=(
+    "-DWITH_TESTS:BOOL=TRUE -DWITH_TESTS:BOOL=FALSE"
+)
+
+src_compile() {
+    # bring in lemon parser generator fro SQLite
+    local archive
+    for archive in $ARCHIVES; do
+        case "$archive" in
+        *.c)
+            edo cp "${FETCHEDDIR}/${archive}" \
+                   "./${archive/-v${LEMON_VER}./.}"
+            ;;
+        esac
+    done
+    edo ${CC} ${CPPFLAGS} ${CFLAGS} -o lemon lemon.c ${LDFLAGS}
+
+    default
+}

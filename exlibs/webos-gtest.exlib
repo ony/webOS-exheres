@@ -1,0 +1,15 @@
+# Copyright 2014 Nikolay Orliuk
+# Distributed under the terms of the GNU General Public License v2
+
+GTEST_VER="1.6.0"
+
+DOWNLOADS+="
+    https://googletest.googlecode.com/files/gtest-${GTEST_VER}.zip
+"
+
+GTEST_WORK="${WORK}/../gtest-${GTEST_VER}"
+CXXFLAGS="-I${GTEST_WORK}/include ${CXXFLAGS}"
+CMAKE_SRC_CONFIGURE_PARAMS+=(
+    "-Dgtest_src:PATH=${GTEST_WORK}"
+)
+
