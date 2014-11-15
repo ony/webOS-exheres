@@ -1,0 +1,18 @@
+# Copyright 2014 Nikolay Orliuk <virkony@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user=openwebos ] webos-cmake
+
+SUMMARY="Open webOS logging control tool"
+
+LICENCES="Apache-2.0"
+SLOT="0"
+PLATFORMS="~x86 ~amd64"
+
+DEPENDENCIES="
+    build+run:
+        webOS/pmloglib
+    run:
+        webOS/pmlogconf
+"
+
