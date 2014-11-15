@@ -1,4 +1,4 @@
-# Copyright 2013 Nikolay Orliuk
+# Copyright 2013-2014 Nikolay Orliuk
 # Distributed under the terms of the GNU General Public License v2
 
 require github [ user=openwebos ] webos-cmake webos-system-bus webos-daemon
@@ -8,18 +8,35 @@ SUMMARY="A userspace service that provides access to the Open webOS database"
 LICENCES="Apache-2.0"
 SLOT="0"
 PLATFORMS="~x86 ~amd64"
-MYOPTIONS=""
+MYOPTIONS="
+    berkdb
+    leveldb
+    db8_backend_berkeleydb [[ description = [ BerkeleyDB backend ] ]]
+    db8_backend_leveldb [[ description = [ LevelDB backend ] ]]
+    db8_backend_sandwich [[ description = [ Sandwich/LevelDB backend ] ]]
+    db8_backend_berkeleydb [[ *requires = berkdb ]]
+    ( db8_backend_leveldb db8_backend_sandwich ) [[ *requires = leveldb ]]
+
+"
 
 DEPENDENCIES="
     build+run:
         dev-libs/glib:2
         net-misc/curl
         dev-libs/icu
-        sys-libs/db:4.8
-        webOS/luna-prefs
+        berkdb? ( sys-libs/db:4.8 )
+        leveldb? ( dev-db/leveldb )
+        db8_backend_sandwich? ( dev-libs/leveldb-tl )
         webOS/jemalloc
         webOS/pmloglib
-    run:
-        webOS/luna-sysservice
 "
 
+src_configure() {
+    local backend backends=() conf_args=()
+    for backend in berkeleydb leveldb sandwich; do
+        optionq db8_backend_${backend} && backends+=("$backend")
+    done
+    IFS=';' eval 'conf_args+=("-DWEBOS_DB8_BACKEND=${backends[*]}")'
+    conf_args+=("-DWEBOS_CONFIG_BUILD_TESTS:BOOL=$(expecting_tests TRUE FALSE)")
+    ecmake "${conf_args[@]}"
+}
