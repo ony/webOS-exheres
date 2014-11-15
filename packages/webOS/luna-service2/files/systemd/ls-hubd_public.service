@@ -1,9 +1,0 @@
-[Unit]
-Description=Public luna-service2 bus
-After=ls-hubd_private.service
-
-[Service]
-ExecStart=/usr/sbin/ls-hubd --public --conf /etc/luna-service2/ls-public.conf --pmloglib
-
-[Install]
-#WantedBy=multi-user.target

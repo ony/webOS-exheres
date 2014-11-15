@@ -1,7 +1,9 @@
-# Copyright 2013 Nikolay Orliuk
+# Copyright 2013-2014 Nikolay Orliuk
 # Distributed under the terms of the GNU General Public License v2
 
-require github [ user=openwebos ] webos-cmake systemd-service
+require github [ user=openwebos ] webos-cmake
+require systemd-service [ systemd_files=[ "${WORK}"/systemd ] ]
+require webos-gtest
 
 SUMMARY="Open webOS Luna System Bus library, daemon, and utilities"
 
@@ -13,9 +15,46 @@ MYOPTIONS=""
 DEPENDENCIES="
     build+run:
         dev-libs/glib:2
-        webOS/cjson
+        webOS/libpbnjson
         webOS/pmloglib
 "
+
+RESTRICT=test
+
+# FIXME: unmask appropriate unix-sockets for tests
+
+CMAKE_SRC_CONFIGURE_TESTS+=(
+    "-DWEBOS_CONFIG_BUILD_TESTS=TRUE -DWEBOS_CONFIG_BUILD_TESTS=FALSE"
+)
+
+src_configure() {
+    mkdir -p systemd
+    cat > systemd/ls-hubd_public.service << EOF
+[Unit]
+Description=Public luna-service2 bus
+After=ls-hubd_private.service
+
+[Service]
+EnvironmentFile=/etc/conf.d/webOS.conf
+ExecStart=$sbindir/ls-hubd --public --conf \${WEBOS_SYSCONFDIR}/luna-service2/ls-public.conf
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    cat > systemd/ls-hubd_private.service << EOF
+[Unit]
+Description=Private luna-service2 bus
+
+[Service]
+EnvironmentFile=/etc/conf.d/webOS.conf
+ExecStart=$sbindir/ls-hubd --conf \${WEBOS_SYSCONFDIR}/luna-service2/ls-private.conf
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    cmake_src_configure
+}
 
 src_install() {
     default
@@ -24,8 +63,8 @@ src_install() {
 
     install_systemd_files
 
-    keepdir /usr/share/dbus-1/{system-,}services
-    keepdir /var/palm/ls2/{roles,services}/{prv,pub}
+    keepdir $prefix/share/dbus-1/{system-,}services
+    keepdir $localstatedir/ls2/{roles,services}/{prv,pub}
 }
 
 
