@@ -1,2 +1,24 @@
-export localstatedir="/var/palm"
+export_exlib_phases pkg_setup
+
+export base_prefix="/opt/webos"
+export prefix="$base_prefix"
+export bindir="$prefix/bin"
+export sbindir="$prefix/sbin"
+export localstatedir="${base_prefix}/var"
+export webos_runtimeinfodir="/run"
+
+if [[ "$CATEGORY/$PN" != "webOS/webos-layout" ]]; then
+    DEPENDENCIES="
+        build+run:
+            webOS/webos-layout
+    "
+fi
+
+webos-env_pkg_setup() {
+    case "$base_prefix" in
+    /) ;;
+    /opt/*) exdirectory --allow /opt ;;
+    *) die "Unsupported base_prefix=$base_prefix" ;;
+    esac
+}
 

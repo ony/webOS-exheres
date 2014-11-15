@@ -6,14 +6,14 @@ export_exlib_phases src_install
 require webos-env
 
 DEPENDENCIES="
-    build:
-        webOS/cmake-modules-webos
+    build+run:
+        webOS/luna-service2
 "
 
-export webos_sysbus_pubservicesdir="/usr/share/dbus-1/services"
-export webos_sysbus_prvservicesdir="/usr/share/dbus-1/system-services"
-export webos_sysbus_pubrolesdir="/usr/share/ls2/roles/pub"
-export webos_sysbus_prvrolesdir="/usr/share/ls2/roles/prv"
+export webos_sysbus_pubservicesdir="$prefix/share/dbus-1/services"
+export webos_sysbus_prvservicesdir="$prefix/share/dbus-1/system-services"
+export webos_sysbus_pubrolesdir="$prefix/share/ls2/roles/pub"
+export webos_sysbus_prvrolesdir="$prefix/share/ls2/roles/prv"
 export webos_sysbus_dynpubservicesdir="${localstatedir}/ls2/services/pub"
 export webos_sysbus_dynprvservicesdir="${localstatedir}/ls2/services/prv"
 export webos_sysbus_dynpubrolesdir="${localstatedir}/ls2/roles/pub"

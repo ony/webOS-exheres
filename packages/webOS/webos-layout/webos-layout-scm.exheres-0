@@ -1,0 +1,28 @@
+# Copyright 2014 Nikolay Orliuk <virkony@gmail.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require webos-env
+
+SUMMARY="Filesystem webOS layout and misc scripts"
+
+LICENCES="GPL-2"
+SLOT="0"
+PLATFORMS="~amd64"
+
+BUGS_TO="virkony@gmail.com"
+
+WORK="${WORKBASE}"
+
+src_install() {
+    edo hereconfd webOS.conf << EOF
+WEBOS_ROOT=${base_prefix}
+WEBOS_BIN=${bindir}
+WEBOS_SBIN=${sbindir}
+WEBOS_SYSCONFDIR=${base_prefix}/etc
+EOF
+    edo hereenvd 50webOS << EOF
+LDPATH=${base_prefix}/${LIBDIR:-lib}
+PATH=${bindir}
+EOF
+}
+
