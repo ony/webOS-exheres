@@ -1,7 +1,7 @@
 # Copyright 2013 Nikolay Orliuk
 # Distributed under the terms of the GNU General Public License v2
 
-require github [ user=openwebos ] autotools [ supported_autoconf=[ 2.5 ] supported_automake=[ 1.13 ] ]
+require openwebos-repo autotools [ supported_autoconf=[ 2.5 ] supported_automake=[ 1.13 ] ]
 
 SUMMARY="Open webOS edition of the open-source json-c library"
 

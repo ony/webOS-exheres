@@ -1,0 +1,6 @@
+if [[ -z "${SCM_MIRROR_OPENWEBOS}" ]]; then
+    require github [ user=openwebos ]
+else
+    SCM_REPOSITORY="${SCM_MIRROR_OPENWEBOS}/${PN}.git"
+    require scm-git
+fi

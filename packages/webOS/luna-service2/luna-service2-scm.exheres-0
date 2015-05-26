@@ -1,7 +1,7 @@
 # Copyright 2013-2014 Nikolay Orliuk
 # Distributed under the terms of the GNU General Public License v2
 
-require github [ user=openwebos ] webos-cmake
+require openwebos-repo webos-cmake
 require systemd-service [ systemd_files=[ "${WORK}"/systemd ] ]
 require webos-gtest
 

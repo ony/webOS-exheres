@@ -1,7 +1,7 @@
 # Copyright 2013 Nikolay Orliuk
 # Distributed under the terms of the GNU General Public License v2
 
-require github [ user=openwebos ] cmake
+require openwebos-repo cmake
 
 SUMMARY="CMake modules used by webOS"
 

@@ -1,7 +1,7 @@
 # Copyright 2013 Nikolay Orliuk
 # Distributed under the terms of the GNU General Public License v2
 
-require github [ user=openwebos ] webos-cmake
+require openwebos-repo webos-cmake
 
 SUMMARY="Open webOS edition of the open-source FreeBSD memory allocation library"
 

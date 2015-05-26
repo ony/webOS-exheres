@@ -1,7 +1,7 @@
 # Copyright 2013-2014 Nikolay Orliuk
 # Distributed under the terms of the GNU General Public License v2
 
-require github [ user=openwebos ] webos-cmake webos-gtest
+require openwebos-repo webos-cmake webos-gtest
 
 SUMMARY="Palm's Better Native JSON library"
 
