@@ -6,6 +6,7 @@ export bindir="$prefix/bin"
 export sbindir="$prefix/sbin"
 export localstatedir="${base_prefix}/var"
 export webos_runtimeinfodir="/run"
+export webos_srcdir="${prefix}/src"
 
 if [[ "$CATEGORY/$PN" != "webOS/webos-layout" ]]; then
     DEPENDENCIES="

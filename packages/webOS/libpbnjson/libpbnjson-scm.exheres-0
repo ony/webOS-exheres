@@ -36,10 +36,6 @@ CMAKE_SRC_CONFIGURE_PARAMS+=(
 # FIXME: Make sure that C.TestDOM will pass even without -DNDEBUG
 CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 
-CMAKE_SRC_CONFIGURE_TESTS+=(
-    "-DWITH_TESTS:BOOL=TRUE -DWITH_TESTS:BOOL=FALSE"
-)
-
 src_compile() {
     # bring in lemon parser generator fro SQLite
     local archive
