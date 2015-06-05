@@ -1,0 +1,36 @@
+# Copyright 2008, 2009, 2010 Ingmar Vanhassel <ingmar@exherbo.org>
+# Distributed under the terms of the GNU General Public License v2
+
+require googlecode [ project=googletest suffix=zip ] webos-env
+
+SUMMARY="Google's framework for writing C++ tests on a variety of platforms, based on the xUnit architecture"
+DESCRIPTION="
+It supports automatic test discovery, a rich set of assertions, user-defined assertions, death tests,
+fatal and non-fatal failures, various options for running the tests, and XML test report generation.
+"
+
+LICENCES="BSD-3"
+SLOT="0"
+PLATFORMS="~amd64 ~x86"
+MYOPTIONS="
+    vim-syntax
+"
+
+DEPENDENCIES="
+    suggestion:
+        vim-syntax? ( app-vim/googletest-syntax )
+"
+
+src_configure() {
+    :
+}
+
+src_compile() {
+    einfo "As per Google recommendation let's ship in a source form"
+}
+
+src_install() {
+    insinto "${webos_srcdir}/${PN}"
+    doins -r "${WORK}"/*
+}
+

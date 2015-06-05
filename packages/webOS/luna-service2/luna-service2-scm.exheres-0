@@ -17,6 +17,8 @@ DEPENDENCIES="
         dev-libs/glib:2
         webOS/libpbnjson
         webOS/pmloglib
+    test:
+        webOS/gtest
 "
 
 RESTRICT=test

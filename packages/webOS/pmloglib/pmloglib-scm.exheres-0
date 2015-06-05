@@ -12,4 +12,5 @@ PLATFORMS="~x86 ~amd64"
 DEPENDENCIES="
     run:
         webOS/pmlogconf
+        webOS/libpbnjson
 "

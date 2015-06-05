@@ -29,6 +29,8 @@ DEPENDENCIES="
         db8_backend_sandwich? ( dev-libs/leveldb-tl )
         webOS/jemalloc
         webOS/pmloglib
+    test:
+        webOS/gtest
 "
 
 src_configure() {

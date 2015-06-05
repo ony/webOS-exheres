@@ -24,7 +24,7 @@ DEPENDENCIES+="
         dev-libs/yajl
         dev-libs/uriparser
     test:
-        dev-cpp/gtest
+        webOS/gtest
         webOS/cjson
 "
 
