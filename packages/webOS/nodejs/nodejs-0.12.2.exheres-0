@@ -1,0 +1,28 @@
+# Copyright 2015 Nikolay Orliuk
+# Distributed under the terms of the GNU General Public License v2
+
+require webos-env
+
+MY_PV=v${PV}
+MY_PNV=node-${MY_PV}
+
+SUMMARY="nodeJS Evented I/O for V8 JavaScript"
+DOWNLOADS="http://nodejs.org/dist/${MY_PV}/${MY_PNV}.tar.gz"
+WORK=${WORKBASE}/${MY_PNV}
+
+LICENCES="Apache-2.0"
+SLOT="0"
+PLATFORMS="~x86 ~amd64"
+MYOPTIONS=""
+
+DEPENDENCIES="
+    build+run:
+        virtual/libssl
+"
+
+RESTRICT=test
+
+src_configure() {
+    edo ./configure --prefix="${base_prefix}" --without-snapshot --shared-openssl
+}
+
