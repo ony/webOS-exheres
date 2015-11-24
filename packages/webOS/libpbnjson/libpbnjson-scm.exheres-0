@@ -1,6 +1,7 @@
 # Copyright 2013-2014 Nikolay Orliuk
 # Distributed under the terms of the GNU General Public License v2
 
+SCM_TAG=submissions/52
 require openwebos-repo webos-cmake webos-gtest
 
 SUMMARY="Palm's Better Native JSON library"
@@ -20,7 +21,7 @@ PLATFORMS="~x86 ~amd64"
 
 DEPENDENCIES+="
     build+run:
-        dev-libs/gmp
+        dev-libs/gmp:=
         dev-libs/yajl
         dev-libs/uriparser
     test:
